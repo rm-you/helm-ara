@@ -22,16 +22,14 @@ spec:
           image: "{{ .Values.image.repo }}:{{ .Values.image.tag }}"
           {{- if .Values.extraEnv }}
           env:
-            {{ toYaml .Values.extraEnv | nindent 12 }}
+            {{- toYaml .Values.extraEnv | nindent 12 }}
           {{- end }}
           ports:
             - containerPort: 8000
             - containerPort: 3000
-          {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: data
               mountPath: /opt/ara
-          {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -39,11 +37,10 @@ spec:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       volumes:
-      {{- if .Values.persistence.enabled }}
         - name: data
+        {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "ara.name" . }}
-      {{- else -}}
-        - name: data
+        {{- else }}
           emptyDir: {}
-      {{- end }}
+        {{- end }}
